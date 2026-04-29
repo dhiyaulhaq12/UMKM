@@ -49,7 +49,29 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M6 21V7l6-4 6 4v14M9 21v-6h6v6" />
                     </svg>
                 </span>
-                <input name="business_name" class="w-full border rounded-md p-2 pl-10" placeholder="Nama Usaha" required>
+                <input name="business_name" value="{{ old('business_name') }}" class="w-full border rounded-md p-2 pl-10" placeholder="Nama Usaha" required>
+            </div>
+        </div>
+
+        {{-- TIPE USAHA (DROPDOWN OMSET) --}}
+        <div>
+            <label class="block mb-1 font-medium">Omset per Bulan</label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.546 1.16 4.455 1.16 6.001 0M15 8.182l-.879-.659c-1.546-1.16-4.455-1.16-6.001 0M9 7h10a2 2 0 012 2v10a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2z" />
+                    </svg>
+                </span>
+                <select name="business_type" class="w-full border rounded-md p-2 pl-10 bg-white appearance-none focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    <option value="" disabled selected>Pilih Omset Pendapatan</option>
+                    <option value="Mikro" {{ old('business_type') == 'Mikro' ? 'selected' : '' }}>Usaha Mikro (Rp 0 - 166 Juta)</option>
+                    <option value="Kecil" {{ old('business_type') == 'Kecil' ? 'selected' : '' }}>Usaha Kecil (Rp 166 Juta - 1,25 Miliar)</option>
+                    <option value="Menengah" {{ old('business_type') == 'Menengah' ? 'selected' : '' }}>Usaha Menengah (Rp 1,25 Miliar - 4,16 Miliar)</option>
+                </select>
+                {{-- Panah Dropdown Custom --}}
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                    <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                </div>
             </div>
         </div>
 

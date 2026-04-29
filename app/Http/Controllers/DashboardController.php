@@ -66,4 +66,17 @@ class DashboardController extends Controller
             'chartDataIncome', 'chartDataExpense', 'chartDataProfit', 'distributionData'
         ));
     }
+
+    public function adminIndex()
+    {
+        // Ini fungsi BARU khusus untuk dashboard ADMIN
+        $totalUser = \App\Models\User::where('role', 'user')->count();
+        $userAktif = \App\Models\User::where('role', 'user')->where('is_active', true)->count();
+        
+        // Angka sementara untuk tampilan
+        $kontenAktif = 4; 
+        $aktivitasHariIni = 10;
+
+        return view('admin.dashboard', compact('totalUser', 'userAktif', 'kontenAktif', 'aktivitasHariIni'));
+    }
 }

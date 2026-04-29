@@ -88,19 +88,42 @@ class TransactionController extends Controller
 }
 public function store(Request $request)
 {
-    // Bersihkan input amount dari titik atau karakter Rp jika ada
+    // 1. Bersihkan input amount
     if ($request->has('amount')) {
         $cleanAmount = preg_replace('/[^0-9]/', '', $request->amount);
         $request->merge(['amount' => $cleanAmount]);
     }
 
+    // 2. Ambil tipe bisnis user
+    $user = Auth::user();
+    $businessType = $user->business_type;
+
+    // 3. Tentukan Kategori Valid berdasarkan Role UMKM
+    $validCategories = [];
+    if ($request->type === 'income') {
+        if ($businessType === 'Mikro') {
+            $validCategories = ["Penjualan Produk", "Lainnya"];
+        } elseif ($businessType === 'Kecil') {
+            $validCategories = ["Penjualan Produk", "Penjualan Jasa", "Hadiah/Bonus", "Lainnya"];
+        } else {
+            // Menengah: Semua tampil
+            $validCategories = ["Penjualan Produk", "Penjualan Jasa", "Investasi", "Sewa Properti", "Royalti", "Bunga Bank", "Hadiah/Bonus", "Lainnya"];
+        }
+    } else {
+        // Untuk expense sementara kita samakan semua dulu sesuai code awalmu
+        $validCategories = ["Bahan Baku", "Operasional", "Gaji Karyawan", "Marketing", "Transportasi", "Sewa Tempat", "Utilitas (Listrik, Air, Internet)", "Asuransi", "Maintenance", "Lainnya"];
+    }
+
+    // 4. Validasi
     $request->validate([
         'type' => 'required|in:income,expense',
-        'category' => 'required|string',
-        'amount' => 'required|numeric|min:0', // Sekarang pasti lolos validasi numeric
+        'category' => 'required|in:' . implode(',', $validCategories), // Validasi ketat di sini
+        'amount' => 'required|numeric|min:0',
         'transaction_date' => 'required|date',
         'note' => 'nullable|string',
         'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ], [
+        'category.in' => 'Kategori yang dipilih tidak valid untuk skala usaha ' . $businessType
     ]);
 
         $imageUrl = null;

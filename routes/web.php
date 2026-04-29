@@ -9,6 +9,9 @@ use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OtpController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AdminLandingPageController;
+use App\Http\Controllers\AdminAccountController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +41,9 @@ Route::middleware('guest')->group(function () {
         ->name('otp.resend');
 });
 Route::get('/', function () {
-    return view('welcome');
+    $settings = \App\Models\LandingSetting::pluck('value', 'key');
+    $features = \App\Models\LandingFeature::all();
+    return view('welcome', compact('settings', 'features'));
 });
 
 /*
@@ -81,4 +86,31 @@ Route::middleware('auth')->group(function () {
 
     // LOGOUT
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});
+
+// 1. Rute Login Admin (Hanya bisa diakses jika belum login)
+Route::middleware('guest')->group(function () {
+    Route::get('/admin/login', [AuthController::class, 'adminLoginForm'])->name('admin.login');
+    Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+});
+
+// 2. Rute Dashboard & Kelola User (Hanya untuk Admin yang sudah login)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    
+    // Dashboard Admin
+    Route::get('/dashboard', [DashboardController::class, 'adminIndex'])->name('dashboard');
+
+    // Kelola User
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::post('/users/{user}/toggle', [AdminUserController::class, 'toggleStatus'])->name('users.toggle');
+    Route::get('/landing-page', [AdminLandingPageController::class, 'edit'])->name('landing.edit');
+    Route::post('/landing-page/hero', [AdminLandingPageController::class, 'updateHero'])->name('landing.hero.update');
+    Route::post('/landing-page/feature', [AdminLandingPageController::class, 'storeFeature'])->name('landing.feature.store');
+    Route::put('/landing-page/feature/{feature}', [AdminLandingPageController::class, 'updateFeature'])->name('landing.feature.update');
+    Route::delete('/landing-page/feature/{feature}', [AdminLandingPageController::class, 'destroyFeature'])->name('landing.feature.destroy');
+
+    Route::get('/akun', [AdminAccountController::class, 'index'])->name('account.index');
+    Route::post('/akun/profile', [AdminAccountController::class, 'updateProfile'])->name('account.profile.update');
+    Route::post('/akun/password', [AdminAccountController::class, 'updatePassword'])->name('account.password.update');
+    Route::post('/logout-admin', [AuthController::class, 'adminLogout'])->name('logout');
 });

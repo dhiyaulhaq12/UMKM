@@ -22,4 +22,4 @@ class OtpMail extends Mailable
         return $this->subject('Kode OTP Verifikasi Akun')
                     ->html("<h1>Kode OTP Anda adalah: <b>{$this->otp}</b></h1><p>Kode ini berlaku selama 5 menit.</p>");
     }
-}
+} 
