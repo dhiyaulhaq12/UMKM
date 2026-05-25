@@ -12,6 +12,7 @@ use App\Http\Controllers\OtpController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminLandingPageController;
 use App\Http\Controllers\AdminAccountController;
+use App\Http\Controllers\AssetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +84,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/password', [AccountController::class, 'updatePassword'])->name('password');
         Route::delete('/profile/photo', [AccountController::class, 'deletePhoto'])->name('profile.delete');
     });
+    Route::resource('assets', AssetController::class)->middleware('auth');
 
     // LOGOUT
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

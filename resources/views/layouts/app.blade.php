@@ -70,6 +70,10 @@
             <span class="menu-text">Transaksi</span>
         </a>
 
+        <a href="/assets" class="menu-item block px-3 py-2 rounded-lg {{ request()->is('asset*') ? $active : $inactive }}">
+            <span class="menu-text">Aset</span>
+        </a>
+
         <a href="/laporan" class="menu-item block px-3 py-2 rounded-lg {{ request()->is('laporan*') ? $active : $inactive }}">
             <span class="menu-text">Laporan</span>
         </a>

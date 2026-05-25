@@ -133,7 +133,6 @@ public function store(Request $request)
                 $file = $request->file('image');
                 $realPath = $file->getRealPath() ?: $file->getPathname();
 
-                // 🔥 INI SUDAH OTOMATIS PAKAI CLOUDINARY_URL
                 $uploaded = (new UploadApi())->upload($realPath, [
                     'folder' => 'transactions',
                     'resource_type' => 'image',
