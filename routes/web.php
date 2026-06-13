@@ -13,6 +13,7 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminLandingPageController;
 use App\Http\Controllers\AdminAccountController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\CustomCategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,18 +60,22 @@ Route::middleware('auth')->group(function () {
     // TRANSACTIONS
     Route::prefix('transactions')->name('transactions.')->group(function () {
         Route::get('/', [TransactionController::class, 'index'])->name('index');
+        Route::get('/create', [TransactionController::class, 'create'])->name('create');
+        Route::get('/{id}/group-items', [TransactionController::class, 'getGroupItems'])->name('transactions.group-items');
         Route::post('/', [TransactionController::class, 'store'])->name('store');
         Route::put('/{transaction}', [TransactionController::class, 'update'])->name('update');
         Route::delete('/{transaction}', [TransactionController::class, 'destroy'])->name('destroy');
     });
+    Route::resource('custom-categories', CustomCategoryController::class);
 
-    // LAPORAN (REPORTS)
     Route::prefix('laporan')->name('reports.')->group(function () {
-        Route::get('/', [ReportController::class, 'index'])->name('index');
-        Route::get('/export/pdf', [ReportController::class, 'exportPdf'])->name('export.pdf');
-        Route::get('/export/excel', [ReportController::class, 'exportExcel'])->name('export.excel');
+        Route::get('/income', [ReportController::class, 'incomeReport'])->name('income');
+        Route::get('/expense', [ReportController::class, 'expenseReport'])->name('expense');
+        Route::get('/export/income-pdf', [ReportController::class, 'exportIncomePdf'])->name('export.pdf'); 
+        Route::get('/export/expense-pdf', [ReportController::class, 'exportExpensePdf'])->name('export.expense-pdf');
+        Route::get('/export/income-excel', [ReportController::class, 'exportIncomeExcel'])->name('export.income-excel'); // Hasilnya: reports.export.income-excel
+        Route::get('/export/expense-excel', [ReportController::class, 'exportExpenseExcel'])->name('export.expense-excel'); // Hasilnya: reports.export.expense-excel
     });
-
     // PREDIKSI
     Route::prefix('prediksi')->name('predictions.')->group(function () {
         Route::get('/', [PredictionController::class, 'index'])->name('index');

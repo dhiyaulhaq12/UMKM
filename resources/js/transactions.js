@@ -1,59 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ===============================
-       KATEGORI DINAMIS (DIUBAH UNTUK SKALA UMKM)
-    =============================== */
-    const typeSelect = document.getElementById('type');
-    const categorySelect = document.getElementById('category');
-    
-    // Ambil tipe bisnis dari elemen metadata yang kita buat di Blade
-    const businessType = document.getElementById('business-metadata')?.dataset.type || 'Menengah';
-
-    if (typeSelect && categorySelect) {
-        // Logika Penentuan Kategori Income berdasarkan Skala
-        let incomeList = [];
-        if (businessType === 'Mikro') {
-            incomeList = ["Penjualan Produk", "Lainnya"];
-        } else if (businessType === 'Kecil') {
-            incomeList = ["Penjualan Produk", "Penjualan Jasa", "Hadiah/Bonus", "Lainnya"];
-        } else {
-            incomeList = ["Penjualan Produk", "Penjualan Jasa", "Investasi", "Sewa Properti", "Royalti", "Bunga Bank", "Hadiah/Bonus", "Lainnya"];
-        }
-
-        const categories = {
-            income: incomeList,
-            expense: [
-                "Bahan Baku",
-                "Operasional",
-                "Gaji Karyawan",
-                "Marketing",
-                "Transportasi",
-                "Sewa Tempat",
-                "Utilitas (Listrik, Air, Internet)",
-                "Asuransi",
-                "Maintenance",
-                "Lainnya"
-            ]
-        };
-
-        typeSelect.addEventListener('change', function () {
-            categorySelect.innerHTML = '<option value="">Pilih Kategori</option>';
-
-            if (!this.value) {
-                categorySelect.disabled = true;
-                return;
-            }
-
-            categorySelect.disabled = false;
-
-            categories[this.value].forEach(cat => {
-                const opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                categorySelect.appendChild(opt);
-            });
-        });
-    }
+    /* =============================================================
+       LOGIKA KATEGORI DINAMIS SUDAH DIPINDAH TOTAL KE FILE BLADE
+       AGAR BISA MENAMPILKAN MENU CUSTOM DARI DATABASE.
+       (Blok kode lama di bagian ini sudah dihapus agar tidak bentrok)
+    ============================================================= */
 
     /* ===============================
        FORMAT RUPIAH (TIDAK BERUBAH)
@@ -67,6 +18,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 : '';
         });
     }
+
+    document.getElementById('type').addEventListener('change', function() {
+        const type = this.value;
+        const categorySelect = document.getElementById('category');
+        const qtyWrapper = document.getElementById('quantityWrapper');
+        const amountInput = document.getElementById('amount');
+        const amountLabel = document.getElementById('amountLabel');
+        
+        // Ambil elemen wrapper gambar (Kita beri ID/bisa pakai pembungkus div gambar jualan)
+        const imageWrapper = document.getElementById('imageSource').parentElement; 
+        const noteWrapper = document.querySelector('textarea[name="note"]').parentElement;
+    
+        categorySelect.innerHTML = '<option value="">Pilih Item</option>';
+        
+        if (type === 'income') {
+            categorySelect.disabled = false;
+            if (qtyWrapper) qtyWrapper.classList.remove('hidden');
+            amountInput.readOnly = true;
+            if (amountLabel) amountLabel.innerText = "Jumlah";
+    
+            // 🟢 Sembunyikan Gambar untuk Pendapatan agar ringkas dan cepat saat input kasir
+            if (imageWrapper) imageWrapper.classList.add('hidden');
+            // Catatan biarkan tetap ada atau dikecilkan fungsinya
+            if (noteWrapper) noteWrapper.classList.remove('hidden'); 
+    
+            // Render customIncomeCategories ...
+            if (customIncomeCategories.length === 0) {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "-- Belum ada menu custom, silakan kelola menu dahulu --";
+                categorySelect.appendChild(option);
+            } else {
+                customIncomeCategories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.name;
+                    option.textContent = cat.name;
+                    option.setAttribute('data-price', cat.default_price);
+                    option.setAttribute('data-unit', cat.unit);
+                    categorySelect.appendChild(option);
+                });
+            }
+        } else if (type === 'expense') {
+            categorySelect.disabled = false;
+            if (qtyWrapper) qtyWrapper.classList.add('hidden');
+            amountInput.readOnly = false;
+            amountInput.value = '';
+            if (amountLabel) amountLabel.innerText = "Jumlah (Rp)";
+    
+            // 🔴 Munculkan Kembali Gambar dan Catatan untuk Pengeluaran (Wajib Bukti Struk)
+            if (imageWrapper) imageWrapper.classList.remove('hidden');
+            if (noteWrapper) noteWrapper.classList.remove('hidden');
+    
+            // Render expenseCategories ...
+            expenseCategories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categorySelect.appendChild(option);
+            });
+        } else {
+            categorySelect.disabled = true;
+            if (qtyWrapper) qtyWrapper.classList.add('hidden');
+        }
+    });
 
     /* ===============================
        BERSIHKAN SAAT SUBMIT (TIDAK BERUBAH)

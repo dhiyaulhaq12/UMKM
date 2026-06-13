@@ -31,7 +31,7 @@
 
         {{-- LOGO --}}
         <img src="{{ asset('icons/umkm.png') }}"
-             class="sidebar-logo w-[120px] transition-all duration-300">
+              class="sidebar-logo w-[120px] transition-all duration-300">
 
         {{-- CLOSE (MOBILE) --}}
         <button id="closeSidebar"
@@ -54,34 +54,107 @@
 
     </div>
 
-    {{-- MENU --}}
+    {{-- MENU DIUBAH MENJADI MODEREN ACCORDION --}}
     @php
         $active = 'bg-white text-blue-700 shadow font-semibold';
         $inactive = 'text-white/80 hover:text-white hover:bg-white/10';
+        
+        $subActive = 'bg-white/10 text-white font-medium';
+        $subInactive = 'text-white/60 hover:text-white hover:bg-white/5';
+
+        // Cek apakah user sedang membuka halaman transaksi atau custom kategori
+        $isTrxGroup = request()->is('transactions*') || request()->routeIs('custom-categories.*');
     @endphp
 
     <nav class="space-y-1 mt-4 text-sm">
 
+        {{-- DASHBOARD --}}
         <a href="/dashboard" class="menu-item block px-3 py-2 rounded-lg {{ request()->is('dashboard*') ? $active : $inactive }}">
             <span class="menu-text">Dashboard</span>
         </a>
 
-        <a href="/transactions" class="menu-item block px-3 py-2 rounded-lg {{ request()->is('transactions*') ? $active : $inactive }}">
-            <span class="menu-text">Transaksi</span>
-        </a>
+        {{-- PARENT MENU: TRANSAKSI (DENGAN TOMBOL ARAH BAWAH) --}}
+        <div class="relative">
+            <button id="btnDropdownTrx" type="button" 
+                    class="w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all {{ $isTrxGroup ? 'bg-white/10 text-white font-semibold' : $inactive }}">
+                <span class="menu-text">Transaksi</span>
+                
+                {{-- Icon Panah Bawah Dinamis (Bisa Berputar dengan Animasi) --}}
+                <svg id="arrowIcon" xmlns="http://www.w3.org/2000/svg" 
+                     class="w-4 h-4 transition-transform duration-200 menu-text {{ $isTrxGroup ? 'rotate-180' : '' }}" 
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
 
+            {{-- WRAPPER SUB-MENU (Bisa Sembunyi/Muncul Semut) --}}
+            <div id="subMenuTrxWrapper" class="{{ $isTrxGroup ? '' : 'hidden' }} mt-1 space-y-1 pl-4 transition-all duration-300">
+                
+                {{-- Menu 1: Daftar Riwayat --}}
+                <a href="{{ route('transactions.index') }}" 
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('transactions.index') ? 'bg-blue-600 text-white' : 'text-gray hover:bg-gray-100' }}">
+                    <span>Daftar Transaksi</span>
+                </a>
+
+                {{-- Menu 2: Input Baru --}}
+                <a href="{{ route('transactions.create') }}" 
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('transactions.create') ? 'bg-blue-600 text-white' : 'text-gray hover:bg-gray-100' }}">
+                    <span>Tambah Transaksi</span>
+                </a>
+
+                {{-- Sub-Menu 2: Kelola Menu Produk --}}
+                <a href="{{ route('custom-categories.index') }}" class="block px-3 py-1.5 rounded-md text-xs transition {{ request()->routeIs('custom-categories.*') ? $active : $subInactive }}">
+                    <span>Kelola Sumber Pendapatan</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- ASET --}}
         <a href="/assets" class="menu-item block px-3 py-2 rounded-lg {{ request()->is('asset*') ? $active : $inactive }}">
             <span class="menu-text">Aset</span>
         </a>
 
-        <a href="/laporan" class="menu-item block px-3 py-2 rounded-lg {{ request()->is('laporan*') ? $active : $inactive }}">
-            <span class="menu-text">Laporan</span>
-        </a>
+        {{-- LAPORAN --}}
+        {{-- PARENT MENU: LAPORAN (DENGAN DROPDOWN) --}}
+        @php
+            // Cek apakah user sedang membuka rumpun menu laporan
+            $isReportGroup = request()->is('laporan*');
+        @endphp
+        <div class="relative">
+            <button id="btnDropdownReport" type="button" 
+                    class="w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all {{ $isReportGroup ? 'bg-white/10 text-white font-semibold' : $inactive }}">
+                <div class="flex items-center gap-3">
+                    <span class="menu-text">Laporan</span>
+                </div>
+                {{-- Panah Dropdown --}}
+                <svg id="arrowIconReport" xmlns="http://www.w3.org/2000/svg" 
+                    class="w-4 h-4 transition-transform duration-200 menu-text {{ $isReportGroup ? 'rotate-180' : '' }}" 
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
 
+            {{-- WRAPPER SUB-MENU LAPORAN --}}
+            <div id="subMenuReportWrapper" class="{{ $isReportGroup ? '' : 'hidden' }} mt-1 space-y-1 pl-4 transition-all duration-300">
+                
+                {{-- Sub-Menu 1: Laporan Pendapatan --}}
+                <a href="/laporan/income" class="block px-3 py-1.5 rounded-md text-xs transition {{ request()->is('laporan/pendapatan*') ? $active : $subInactive }}">
+                    <span>Laporan Pendapatan</span>
+                </a>
+
+                {{-- Sub-Menu 2: Laporan Pengeluaran --}}
+                <a href="/laporan/expense" class="block px-3 py-1.5 rounded-md text-xs transition {{ request()->is('laporan/pengeluaran*') ? $active : $subInactive }}">
+                    <span>Laporan Pengeluaran</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- PREDIKSI --}}
         <a href="/prediksi" class="menu-item block px-3 py-2 rounded-lg {{ request()->is('prediksi*') ? $active : $inactive }}">
             <span class="menu-text">Prediksi</span>
         </a>
 
+        {{-- AKUN --}}
         <a href="/akun" class="menu-item block px-3 py-2 rounded-lg {{ request()->is('akun*') ? $active : $inactive }}">
             <span class="menu-text">Akun</span>
         </a>
@@ -95,7 +168,6 @@
 
         {{-- TOP BAR --}}
         <header class="bg-white shadow-sm px-4 md:px-6 py-2 flex items-center justify-between z-20">
-            {{-- Bagian Kiri: Tombol Hamburger (Mobile) & Judul --}}
             <div class="flex items-center">
                 <button id="openSidebar" class="md:hidden text-gray-700 text-xl mr-3">
                     ☰
@@ -104,7 +176,6 @@
                 </h1>
             </div>
 
-            {{-- Bagian Kanan: Foto Profil & Logout Dropdown --}}
             <div class="relative" id="profileDropdownContainer">
                 <button id="profileDropdownBtn" class="flex items-center focus:outline-none group">
                     <img 
@@ -114,7 +185,6 @@
                     >
                 </button>
 
-                {{-- Dropdown Menu --}}
                 <div id="logoutDropdown" 
                      class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-lg z-50 overflow-hidden">
                     <div class="p-2">
@@ -138,8 +208,49 @@
     </div>
 
 {{-- ========================= --}}
-{{-- SIDEBAR MOBILE SCRIPT --}}
+{{-- SCRIPT INTERAKTIF ACCORDION --}}
 {{-- ========================= --}}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btnDropdownTrx = document.getElementById('btnDropdownTrx');
+    const subMenuTrxWrapper = document.getElementById('subMenuTrxWrapper');
+    const arrowIcon = document.getElementById('arrowIcon');
+
+    // Toggle buka-tutup sub-menu saat tombol Transaksi di-klik
+    btnDropdownTrx?.addEventListener('click', () => {
+        const isHidden = subMenuTrxWrapper.classList.contains('hidden');
+        
+        if (isHidden) {
+            subMenuTrxWrapper.classList.remove('hidden');
+            arrowIcon.classList.add('rotate-180');
+        } else {
+            subMenuTrxWrapper.classList.add('hidden');
+            arrowIcon.classList.remove('rotate-180');
+        }
+    });
+
+    // Letakkan ini di dalam DOMContentLoaded script sidebar-mu bersama dropdown transaksi
+const btnDropdownReport = document.getElementById('btnDropdownReport');
+const subMenuReportWrapper = document.getElementById('subMenuReportWrapper');
+const arrowIconReport = document.getElementById('arrowIconReport');
+
+btnDropdownReport?.addEventListener('click', () => {
+    const isHidden = subMenuReportWrapper.classList.contains('hidden');
+    if (isHidden) {
+        subMenuReportWrapper.classList.remove('hidden');
+        arrowIconReport.classList.add('rotate-180');
+    } else {
+        subMenuReportWrapper.classList.add('hidden');
+        arrowIconReport.classList.remove('rotate-180');
+    }
+});
+
+// Pastikan di dalam fungsi collapse() desktop-mu juga menyembunyikan sub-menu laporan:
+// if (subMenuReportWrapper) subMenuReportWrapper.classList.add('hidden');
+});
+</script>
+
+{{-- SCRIPT RESPONSIVE & COLLAPSE LAINNYA (TETAP UTUH) --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('sidebar');
@@ -168,10 +279,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleDesktop = document.getElementById('toggleDesktopSidebar');
     const menuTexts = document.querySelectorAll('.menu-text');
     const logo = document.querySelector('.sidebar-logo');
+    const subMenuWrapper = document.getElementById('subMenuTrxWrapper');
 
     if (!sidebar || !toggleDesktop) return;
 
-    // restore state
     if (localStorage.getItem('sidebar-collapsed') === 'true') {
         collapse();
     }
@@ -186,6 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebar.classList.add('w-20');
         menuTexts.forEach(el => el.classList.add('hidden'));
         logo.classList.add('hidden');
+        if (subMenuWrapper) subMenuWrapper.classList.add('hidden'); // Sembunyikan sub-menu jika menu mengecil (w-20)
         toggleDesktop.innerHTML = '›';
         localStorage.setItem('sidebar-collapsed', 'true');
     }
@@ -195,6 +307,11 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebar.classList.add('w-64');
         menuTexts.forEach(el => el.classList.remove('hidden'));
         logo.classList.remove('hidden');
+        
+        // Kembalikan sub-menu jika memang link grup aktif
+        const isTrxGroup = {{ request()->is('transactions*') || request()->routeIs('custom-categories.*') ? 'true' : 'false' }};
+        if (isTrxGroup && subMenuWrapper) subMenuWrapper.classList.remove('hidden');
+        
         toggleDesktop.innerHTML = '‹';
         localStorage.setItem('sidebar-collapsed', 'false');
     }
@@ -211,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdown.classList.toggle('hidden');
     });
 
-    // Klik di luar untuk menutup dropdown
     document.addEventListener('click', (e) => {
         if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
             dropdown.classList.add('hidden');

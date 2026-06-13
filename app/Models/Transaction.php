@@ -8,12 +8,16 @@ class Transaction extends Model
 {
     protected $fillable = [
         'user_id',
+        'session_code',
         'type',
         'category',
         'amount',
         'transaction_date',
+        'transaction_time',
         'note',
-        'image'
+        'image',
+        'quantity',
+        'unit'
     ];
 
     public function user()
